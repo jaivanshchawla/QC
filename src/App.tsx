@@ -1,4 +1,4 @@
-﻿import { Button } from '@/components/ui/button'
+﻿import QuantumCasino from '@/components/quantum-casino/QuantumCasino'
 import './App.css'
 
 export default function App() {
@@ -9,10 +9,10 @@ export default function App() {
           <h1>QC RetroUI</h1>
           <p>
             A Vite + React + Tailwind project using shadcn UI components,
-            styled with RetroUI theme variables.
+            styled with RetroUI theme.
           </p>
-          <Button>Launch QC prototype</Button>
         </div>
+        <QuantumCasino />
       </main>
     </div>
   )
