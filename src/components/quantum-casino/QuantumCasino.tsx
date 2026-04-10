@@ -1,5 +1,9 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Log from './Log'
 import ConvergenceChart from './ConvergenceChart'
 import './QuantumCasino.css'
@@ -160,109 +164,196 @@ export default function QuantumCasino() {
 
   return (
     <div className="qc-container">
-      <div className="qc-tabs">
+      <Tabs value={mode} onValueChange={handleSetMode} className="w-full">
+        <TabsList className="grid w-full grid-cols-4 mb-6">
+          {Object.keys(MODES).map(m => (
+            <TabsTrigger key={m} value={m} className="text-xs">
+              {MODES[m].label.split(' — ')[0]}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
         {Object.keys(MODES).map(m => (
-          <button
-            key={m}
-            className={`qc-tab ${mode === m ? 'active' : ''}`}
-            onClick={() => handleSetMode(m)}
-          >
-            {MODES[m].label.split(' — ')[0]}
-          </button>
-        ))}
-      </div>
-
-      <div className="qc-grid">
-        <div className="qc-main-card">
-          <div className="qc-mode-desc" dangerouslySetInnerHTML={{ __html: cfg.desc }} />
-          <div className="qc-circuit" dangerouslySetInnerHTML={{ __html: cfg.circuit() }} />
-          <div className="qc-coin-area">
-            {mode === 'entangle' ? (
-              <div className="qc-ent-pair">
-                <div className="qc-ent-qubit" id="q0">{entQubits.q0}</div>
-                <div className="qc-ent-link" style={{ color: entLinkColor }}>⊕<br />entangled</div>
-                <div className="qc-ent-qubit" id="q1">{entQubits.q1}</div>
-              </div>
-            ) : (
-              <div className="qc-coin-wrap">
-                <div className={`qc-coin ${coinState}`} id="main-coin">⚇</div>
-              </div>
-            )}
-          </div>
-          <div className="qc-result-msg" style={{ color: coinState === 'win' ? 'var(--win)' : coinState === 'loss' ? 'var(--loss)' : 'inherit' }}>
-            {resultMsg}
-          </div>
-          <div className="qc-pred-row">
-            {cfg.predict.slice(0, 2).map((p, i) => (
-              <button
-                key={i}
-                className={`qc-pred-btn ${prediction === i ? 'selected' : ''}`}
-                onClick={() => handleSetPrediction(i)}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-          <Button
-            className="qc-flip-btn"
-            disabled={prediction === null || pending}
-            onClick={runCircuit}
-          >
-            {pending ? 'Measuring…' : prediction !== null ? 'Collapse the wave function ↓' : 'Pick a side to measure'}
-          </Button>
-          <div className="qc-stats-grid">
-            <div className="qc-stat-card">
-              <div className="qc-stat-label">shots</div>
-              <div className="qc-stat-val">{shots}</div>
-            </div>
-            <div className="qc-stat-card">
-              <div className="qc-stat-label">score</div>
-              <div className="qc-stat-val" style={{ color: 'var(--win)' }}>{score}</div>
-            </div>
-            <div className="qc-stat-card">
-              <div className="qc-stat-label">hit rate</div>
-              <div className="qc-stat-val">{shots > 0 ? `${accuracy}%` : '—'}</div>
-            </div>
-          </div>
-          <Log entries={logEntries} />
-        </div>
-
-        <div className="qc-side-cards">
-          <div className="qc-card">
-            <div className="qc-section-title">measurement histogram</div>
-            <div id="histogram">
-              {shots === 0 ? (
-                <div className="qc-no-data">no shots yet</div>
-              ) : (
-                cfg.outcomes.filter(o => cfg.probs[cfg.outcomes.indexOf(o)] > 0 || counts[o]).map((o, i) => {
-                  const n = counts[o] || 0
-                  const pct = Math.round((n / shots) * 100)
-                  const theoretical = Math.round((cfg.probs[cfg.outcomes.indexOf(o)] || 0) * 100)
-                  const colors = ['var(--accent)', 'var(--accent2)', 'var(--accent3)', '#f0c040']
-                  return (
-                    <div key={o} className="qc-bar-row">
-                      <div className="qc-bar-meta">
-                        <span>|{o}⟩ <span className="qc-theory">theory {theoretical}%</span></span>
-                        <span>{n} shots ({pct}%)</span>
-                      </div>
-                      <div className="qc-bar-track">
-                        <div className="qc-bar-fill" style={{ width: `${pct}%`, background: colors[i % colors.length] }} />
-                      </div>
+          <TabsContent key={m} value={m} className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Main Game Card */}
+              <div className="lg:col-span-2 space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      {MODES[m].label}
+                      <Badge variant="secondary">{shots} shots</Badge>
+                    </CardTitle>
+                    <CardDescription dangerouslySetInnerHTML={{ __html: MODES[m].desc }} />
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    {/* Circuit Display */}
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <div className="text-sm font-mono text-center" dangerouslySetInnerHTML={{ __html: MODES[m].circuit() }} />
                     </div>
-                  )
-                })
-              )}
+
+                    {/* Coin/Entanglement Display */}
+                    <div className="flex justify-center">
+                      {m === 'entangle' ? (
+                        <div className="flex items-center gap-8">
+                          <div className="text-center">
+                            <div className="text-6xl mb-2">{entQubits.q0}</div>
+                            <Badge variant="outline">q0</Badge>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-4xl text-primary mb-2" style={{ color: entLinkColor }}>⊕</div>
+                            <div className="text-xs text-muted-foreground">entangled</div>
+                          </div>
+                          <div className="text-center">
+                            <div className="text-6xl mb-2">{entQubits.q1}</div>
+                            <Badge variant="outline">q1</Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center">
+                          <div className={`text-8xl transition-all duration-300 ${coinState === 'win' ? 'text-green-500' : coinState === 'loss' ? 'text-red-500' : ''}`}>
+                            ⚇
+                          </div>
+                          <Badge variant="outline" className="mt-2">
+                            {coinState === 'superposition' ? 'Superposition' :
+                             coinState === 'spinning' ? 'Measuring...' :
+                             coinState === 'win' ? 'Correct!' : 'Wrong'}
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Result Message */}
+                    {resultMsg && (
+                      <div className={`text-center p-3 rounded-lg border ${
+                        coinState === 'win' ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-950 dark:border-green-800 dark:text-green-200' :
+                        'bg-red-50 border-red-200 text-red-800 dark:bg-red-950 dark:border-red-800 dark:text-red-200'
+                      }`}>
+                        {resultMsg}
+                      </div>
+                    )}
+
+                    {/* Prediction Buttons */}
+                    <div className="flex gap-3 justify-center">
+                      {MODES[m].predict.slice(0, 2).map((p, i) => (
+                        <Button
+                          key={i}
+                          variant={prediction === i ? "default" : "outline"}
+                          onClick={() => handleSetPrediction(i)}
+                          className="flex-1"
+                        >
+                          {p}
+                        </Button>
+                      ))}
+                    </div>
+
+                    {/* Run Circuit Button */}
+                    <Button
+                      className="w-full"
+                      size="lg"
+                      disabled={prediction === null || pending}
+                      onClick={runCircuit}
+                    >
+                      {pending ? 'Measuring quantum state...' : prediction !== null ? 'Collapse the wave function ↓' : 'Pick a side to measure'}
+                    </Button>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold">{shots}</div>
+                          <p className="text-xs text-muted-foreground">Total Shots</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold text-green-600">{score}</div>
+                          <p className="text-xs text-muted-foreground">Correct</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold">{shots > 0 ? `${accuracy}%` : '—'}</div>
+                          <p className="text-xs text-muted-foreground">Accuracy</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Log */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Measurement Log</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Log entries={logEntries} />
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Side Panel */}
+              <div className="space-y-6">
+                {/* Histogram */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Measurement Histogram</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {shots === 0 ? (
+                      <div className="text-center text-muted-foreground py-8">
+                        No measurements yet
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {MODES[m].outcomes.filter(o => MODES[m].probs[MODES[m].outcomes.indexOf(o)] > 0 || counts[o]).map((o) => {
+                          const n = counts[o] || 0
+                          const pct = Math.round((n / shots) * 100)
+                          const theoretical = Math.round((MODES[m].probs[MODES[m].outcomes.indexOf(o)] || 0) * 100)
+                          return (
+                            <div key={o} className="space-y-2">
+                              <div className="flex justify-between text-sm">
+                                <span className="font-mono">|{o}⟩</span>
+                                <span className="text-muted-foreground">
+                                  {n} ({pct}%) / theory {theoretical}%
+                                </span>
+                              </div>
+                              <Progress value={pct} className="h-2" />
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Quantum Theory */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Quantum Concept</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: MODES[m].theory }} />
+                  </CardContent>
+                </Card>
+
+                {/* Convergence Chart */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Convergence Chart</CardTitle>
+                    <CardDescription>
+                      Probability convergence over measurements
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ConvergenceChart history={history} />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
-
-          <div className="qc-card">
-            <div className="qc-section-title">quantum concept</div>
-            <div className="qc-theory-box" dangerouslySetInnerHTML={{ __html: cfg.theory }} />
-          </div>
-
-          <ConvergenceChart history={history} />
-        </div>
-      </div>
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   )
 }
