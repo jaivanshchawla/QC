@@ -1,0 +1,11 @@
+# Ignore common OS and editor files
+.DS_Store
+Thumbs.db
+
+# Node modules (if you add node-based tooling later)
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
