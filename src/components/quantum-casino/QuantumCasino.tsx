@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import Log from './Log'
 import ConvergenceChart from './ConvergenceChart'
@@ -67,6 +67,10 @@ export default function QuantumCasino() {
   const [history, setHistory] = useState<number[]>([])
   const [entQubits, setEntQubits] = useState({ q0: '⚇', q1: '⚇' })
   const [entLinkColor, setEntLinkColor] = useState('var(--destructive)')
+  const [logEntries, setLogEntries] = useState<Array<{id: number, result: string, predicted: string, hit: boolean, shot: number}>>([])
+  const [resultMsg, setResultMsg] = useState('')
+  const [coinState, setCoinState] = useState('superposition')
+  const [pending, setPending] = useState(false)
 
   const cfg = MODES[mode]
 
