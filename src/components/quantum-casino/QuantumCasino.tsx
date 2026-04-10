@@ -18,7 +18,7 @@ interface ModeConfig {
 const MODES: Record<string, ModeConfig> = {
   super: {
     label: 'Superposition — H Gate',
-    circuit: () => `|0⟩ ——[<span class="gate gate-h">H</span>]——[<span class="gate gate-m">M</span>]——<br><span style="color:var(--muted)">// H|0⟩ = (|0⟩+|1⟩)/√2 → P(0)=0.5, P(1)=0.5</span>`,
+    circuit: () => `|0⟩ ——[<span class="qc-gate qc-gate-h">H</span>]——[<span class="qc-gate qc-gate-m">M</span>]——<br><span style="color:var(--muted)">// H|0⟩ = (|0⟩+|1⟩)/√2 → P(0)=0.5, P(1)=0.5</span>`,
     outcomes: ['0', '1'],
     probs: [0.5, 0.5],
     predict: ['🍀 Heads |0⟩', '🌑 Tails |1⟩'],
@@ -28,7 +28,7 @@ const MODES: Record<string, ModeConfig> = {
   },
   phase: {
     label: 'Phase Kickback — Z Gate',
-    circuit: () => `|0⟩ ——[<span class="gate gate-h">H</span>]——[<span class="gate gate-z">Z</span>]——[<span class="gate gate-h">H</span>]——[<span class="gate gate-m">M</span>]——<br><span style="color:var(--muted)">// H·Z·H|0⟩ = X|0⟩ = |1⟩ → P(1)≈1.0</span>`,
+    circuit: () => `|0⟩ ——[<span class="qc-gate qc-gate-h">H</span>]——[<span class="qc-gate qc-gate-z">Z</span>]——[<span class="qc-gate qc-gate-h">H</span>]——[<span class="qc-gate qc-gate-m">M</span>]——<br><span style="color:var(--muted)">// H·Z·H|0⟩ = X|0⟩ = |1⟩ → P(1)≈1.0</span>`,
     outcomes: ['0', '1'],
     probs: [0.05, 0.95],
     predict: ['|0⟩ (wrong!)', '|1⟩ (correct)'],
@@ -38,7 +38,7 @@ const MODES: Record<string, ModeConfig> = {
   },
   entangle: {
     label: 'Entanglement — Bell State',
-    circuit: () => `q0: |0⟩ ——[<span class="gate gate-h">H</span>]——●——[<span class="gate gate-m">M</span>]——<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>q1: |0⟩ ———————[<span class="gate gate-cx">CX</span>]——[<span class="gate gate-m">M</span>]——<br><span style="color:var(--muted)">// |Φ+⟩ = (|00⟩+|11⟩)/√2 → P(00)=P(11)=0.5</span>`,
+    circuit: () => `q0: |0⟩ ——[<span class="qc-gate qc-gate-h">H</span>]——●——[<span class="qc-gate qc-gate-m">M</span>]——<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|<br>q1: |0⟩ ———————[<span class="qc-gate qc-gate-cx">CX</span>]——[<span class="qc-gate qc-gate-m">M</span>]——<br><span style="color:var(--muted)">// |Φ+⟩ = (|00⟩+|11⟩)/√2 → P(00)=P(11)=0.5</span>`,
     outcomes: ['00', '11', '01', '10'],
     probs: [0.5, 0.5, 0, 0],
     predict: ['|00⟩ both 0', '|11⟩ both 1'],
@@ -48,7 +48,7 @@ const MODES: Record<string, ModeConfig> = {
   },
   composite: {
     label: 'Composite — H + X Gate',
-    circuit: () => `|0⟩ ——[<span class="gate gate-h">H</span>]——[<span class="gate gate-x">X</span>]——[<span class="gate gate-m">M</span>]——<br><span style="color:var(--muted)">// X|+⟩ = |+⟩ → still 50/50! Gate order matters.</span>`,
+    circuit: () => `|0⟩ ——[<span class="qc-gate qc-gate-h">H</span>]——[<span class="qc-gate qc-gate-x">X</span>]——[<span class="qc-gate qc-gate-m">M</span>]——<br><span style="color:var(--muted)">// X|+⟩ = |+⟩ → still 50/50! Gate order matters.</span>`,
     outcomes: ['0', '1'],
     probs: [0.5, 0.5],
     predict: ['|0⟩ Heads', '|1⟩ Tails'],
