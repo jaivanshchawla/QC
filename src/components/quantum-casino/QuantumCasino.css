@@ -355,3 +355,38 @@
   color: var(--muted);
   line-height: 1.7;
 }
+
+.qc-log-box {
+  max-height: 90px;
+  overflow-y: auto;
+  border-top: 1px solid var(--border);
+  padding-top: 0.6rem;
+  margin-top: 1rem;
+}
+
+.qc-log-entry {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  color: var(--muted);
+  padding: 2px 0;
+}
+
+.qc-log-entry.hit {
+  color: var(--win);
+}
+
+.qc-log-entry.miss {
+  color: var(--loss);
+}
+
+.qc-conv-canvas {
+  width: 100%;
+  border-radius: 0;
+}
+
+.qc-conv-label {
+  font-family: var(--mono);
+  font-size: 0.65rem;
+  color: var(--muted);
+  margin-top: 6px;
+}
