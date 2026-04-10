@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
+import Log from './Log'
+import ConvergenceChart from './ConvergenceChart'
 import './QuantumCasino.css'
 
 interface ModeConfig {
@@ -63,9 +65,8 @@ export default function QuantumCasino() {
   const [score, setScore] = useState(0)
   const [counts, setCounts] = useState<Record<string, number>>({})
   const [history, setHistory] = useState<number[]>([])
-  const [pending, setPending] = useState(false)
-  const [resultMsg, setResultMsg] = useState('')
-  const [coinState, setCoinState] = useState('superposition')
+  const [entQubits, setEntQubits] = useState({ q0: '⚇', q1: '⚇' })
+  const [entLinkColor, setEntLinkColor] = useState('var(--destructive)')
 
   const cfg = MODES[mode]
 
@@ -78,6 +79,8 @@ export default function QuantumCasino() {
     setHistory([])
     setResultMsg('')
     setCoinState('superposition')
+    setEntQubits({ q0: '⚇', q1: '⚇' })
+    setEntLinkColor('var(--destructive)')
   }
 
   const handleSetPrediction = (value: number) => {
@@ -99,6 +102,11 @@ export default function QuantumCasino() {
     setPending(true)
     setCoinState('spinning')
 
+    if (mode === 'entangle') {
+      setEntQubits({ q0: '🌑', q1: '🌑' })
+      setEntLinkColor('var(--primary)')
+    }
+
     setTimeout(() => {
       const result = sampleOutcome()
       const predOutcome = cfg.outcomes[prediction]
@@ -114,11 +122,30 @@ export default function QuantumCasino() {
       if (newHistory.length > 20) newHistory.shift()
       setHistory(newHistory)
 
+      if (mode === 'entangle') {
+        const bits = result.split('')
+        setEntQubits({
+          q0: bits[0] === '0' ? '🔵' : '🔴',
+          q1: bits[1] === '0' ? '🔵' : '🔴'
+        })
+        setEntLinkColor(hit ? 'var(--win)' : 'var(--loss)')
+      } else {
+        setCoinState(hit ? 'win' : 'loss')
+      }
+
       setResultMsg(`|${result}⟩ measured — ${hit ? '✓ correct!' : '✗ wrong'}`)
-      setCoinState(hit ? 'win' : 'loss')
+      setLogEntries(prev => [{
+        id: Date.now(),
+        result,
+        predicted: predOutcome,
+        hit,
+        shot: shots + 1
+      }, ...prev.slice(0, 19)])
 
       setTimeout(() => {
-        setCoinState('superposition')
+        if (mode !== 'entangle') {
+          setCoinState('superposition')
+        }
         setPrediction(null)
         setPending(false)
       }, 1200)
@@ -148,9 +175,9 @@ export default function QuantumCasino() {
           <div className="qc-coin-area">
             {mode === 'entangle' ? (
               <div className="qc-ent-pair">
-                <div className="qc-ent-qubit" id="q0">⚇</div>
-                <div className="qc-ent-link">⊕<br />entangled</div>
-                <div className="qc-ent-qubit" id="q1">⚇</div>
+                <div className="qc-ent-qubit" id="q0">{entQubits.q0}</div>
+                <div className="qc-ent-link" style={{ color: entLinkColor }}>⊕<br />entangled</div>
+                <div className="qc-ent-qubit" id="q1">{entQubits.q1}</div>
               </div>
             ) : (
               <div className="qc-coin-wrap">
@@ -193,6 +220,7 @@ export default function QuantumCasino() {
               <div className="qc-stat-val">{shots > 0 ? `${accuracy}%` : '—'}</div>
             </div>
           </div>
+          <Log entries={logEntries} />
         </div>
 
         <div className="qc-side-cards">
@@ -227,6 +255,8 @@ export default function QuantumCasino() {
             <div className="qc-section-title">quantum concept</div>
             <div className="qc-theory-box" dangerouslySetInnerHTML={{ __html: cfg.theory }} />
           </div>
+
+          <ConvergenceChart history={history} />
         </div>
       </div>
     </div>
